@@ -162,6 +162,11 @@ def whole_input_check(
 
 
 def main(**kwargs):
+    logging.basicConfig(
+        level=logging.DEBUG, 
+        format=f"{colors.WARNINGRED}[ERROR - %(asctime)s]{colors.ENDC} - %(message)s",
+    )
+
     whole_input_check(
         kwargs.get("file"),
         kwargs.get("operator"),    
