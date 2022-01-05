@@ -75,6 +75,11 @@ def get_file_lines(fname: str) -> List[str]:
         errors.file_not_found(fname)
 
 
+def create_file_if_needed(fname: str) -> None:
+    if not fname in os.listdir():
+        os.system(f"touch {fname}") 
+
+
 def write_file_lines(fname: str, lines: List[str]) -> None:
     try:
         with open(fname, 'w') as file:
@@ -186,7 +191,7 @@ def main(**kwargs):
 
     running_msg(file, kwargs.get("inputFile"), kwargs.get("exitFile"))
 
-    if kwargs.get("inputOperator") is None:
+    if kwargs.get("operator") is None:
         os.system("./a.out")
         exit()
 
@@ -197,9 +202,10 @@ def main(**kwargs):
             for line in lines:
                 print(line, end=pend)
         
-        _print_file_lines(programOutput, pend='\n')
+        _print_file_lines(programOutput)
         exit()
 
+    create_file_if_needed(kwargs.get("exitFile"))
     write_file_lines(kwargs.get("exitFile"), programOutput)
     print(f"{colors.OKGREEN}[SUCCESS]{colors.ENDC} Write lines to file {kwargs.get('exitFile')} successful")
 
