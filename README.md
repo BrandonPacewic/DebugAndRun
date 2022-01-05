@@ -37,7 +37,7 @@ output file is provided
 
 For this version a input file is needed to make an output file
 
-### define DBG_MODE
+### Define DBG_MODE
 
 This script will also open the .cc file that you intend to run and will replace
 
