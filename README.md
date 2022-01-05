@@ -106,4 +106,4 @@ With defining DBG_MODE
 
 If you want to look more at my debug template for competitive programming that can be found [Here](https://github.com/BrandonPacewic/CompetitiveProgramming/blob/master/tools/dbg.hpp)
 
-At the moment this does mean that the script checks every file to see if it needs to define the dbg macro but a feature to disable this with sys.args is to be added in newer versions
+At the moment this does mean that the script checks every line to see if it needs to define the dbg macro but a feature to disable this with sys.args is to be added in newer versions
