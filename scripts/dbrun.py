@@ -129,21 +129,36 @@ def cpp_program_interact(lines: List[str]) -> List[str]:
     return [line.decode() for line in p.stdout.readlines()]
 
 
-def wholeInputCheck(inputOperator, inputFile, exitOperator, exitFile):
+def whole_input_check(
+    inputOperator: str, 
+    inputFile: str, 
+    exitOperator: str, 
+    exitFile: str
+) -> Optional[exit]:
     if inputOperator is None:
         return
 
-    _os.checkAssert(inputOperator == '/', True, _os.colors.WARNINGRED, _os.errors.INVALIDOPPERATOR, True)
-    _os.checkAssert(inputFile is not None, True, _os.colors.WARNINGRED, _os.errors.NOFILE, True)
+    check_condition(
+        inputOperator == '/', 
+        color=colors.WARNINGYELLOW, 
+        msg=errors.INVALID_OPPERATOR, 
+        leave=False,
+    )
+    check_condition(inputFile is not None, msg=errors.NO_FILE)
 
     if exitOperator is None:
         return
 
-    _os.checkAssert(exitOperator == '/', True, _os.colors.WARNINGRED, _os.errors.INVALIDOPPERATOR, True)
-    _os.checkAssert(exitFile is not None, True, _os.colors.WARNINGRED, _os.errors.NOFILE, True)
+    check_condition(
+        exitOperator == '/',
+        color=colors.WARNINGYELLOW,
+        msg=errors.INVALID_OPPERATOR,
+        leave=False
+    )
+    check_condition(exitFile is not None, msg=errors.NO_FILE)
 
 
-def main(argv):
+def main(**kwargs):
     _os.checkAssert(len(argv) in range(1, 6), True, _os.colors.WARNINGRED, _os.errors.EXPECTEDARGUMENTS, True)
 
     file = argv[0]
@@ -152,8 +167,7 @@ def main(argv):
     exitOperator = argv[3] if len(argv) > 3 else None
     exitFile = argv[4] if len(argv) > 4 else None
 
-    # Asserting that whole input is valid
-    wholeInputCheck(inputOperator, inputFile, exitOperator, exitFile)
+    whole_input_check(inputOperator, inputFile, exitOperator, exitFile)
 
     if file[-3:] != ".cc":  # Adds a suffix if none is provided
         file += ".cc"
