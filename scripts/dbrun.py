@@ -130,11 +130,14 @@ def cpp_program_interact(lines: List[str]) -> List[str]:
 
 
 def whole_input_check(
+    file: str,
     inputOperator: str, 
     inputFile: str, 
     exitOperator: str, 
     exitFile: str
 ) -> Optional[exit]:
+    check_condition(file is not None, msg=errors.NO_FILE)
+
     if inputOperator is None:
         return
 
@@ -159,42 +162,49 @@ def whole_input_check(
 
 
 def main(**kwargs):
-    _os.checkAssert(len(argv) in range(1, 6), True, _os.colors.WARNINGRED, _os.errors.EXPECTEDARGUMENTS, True)
+    whole_input_check(
+        kwargs.get("file"),
+        kwargs.get("operator"),    
+        kwargs.get("inputFile"),
+        kwargs.get("exitOperator"),    
+        kwargs.get("exitFile"),
+    )
 
-    file = argv[0]
-    inputOperator = argv[1] if len(argv) > 1 else None
-    inputFile = argv[2] if len(argv) > 2 else None
-    exitOperator = argv[3] if len(argv) > 3 else None
-    exitFile = argv[4] if len(argv) > 4 else None
+    does_need_suffix = lambda file: file if file[-3:] == ".cc" else f"{file}.cc"
+    file = does_need_suffix(kwargs.get("file"))
 
-    whole_input_check(inputOperator, inputFile, exitOperator, exitFile)
-
-    if file[-3:] != ".cc":  # Adds a suffix if none is provided
-        file += ".cc"
-
-    findFileForGpp(file)
-    targetLine = findTargetLine(file, target="//dbg\n")
-    enterDbgMode(file, targetLine)
+    gpp_assert_file_in_dir(file)
+    targetLine = locate_target_line(file, target="//dbg\n")
+    replace_line(file, targetLine, replacementLine="#define DBG_MODE\n")
     os.system(f"g++ {file}")
-    exitDbgMode(file, targetLine)
+    replace_line(file, targetLine, replacementLine="//dbg\n")
 
-    runningMsg(file, inputFile, exitFile)
+    running_msg(file, kwargs.get("inputFile"), kwargs.get("exitFile"))
 
-    if inputOperator is None:
+    if kwargs.get("inputOperator") is None:
         os.system("./a.out")
         exit()
 
-    programOutput = inputLines(getLines(inputFile))
+    programOutput = cpp_program_interact(get_file_lines(kwargs.get("inputFile")))
 
-    if exitOperator is None:
-        for line in programOutput:
-            print(line)
-
+    if kwargs.get("exitFile") is None:
+        def _print_file_lines(lines: List[str], pend='') -> None:
+            for line in lines:
+                print(line, end=pend)
+        
+        _print_file_lines(programOutput, pend='\n')
         exit()
 
-    writeLines(exitFile, programOutput)
-    print(f"{_os.colors.OKGREEN}[SUCCESS]{_os.colors.ENDC} Write lines to file {exitFile} successful")
+    write_file_lines(kwargs.get("exitFile"), programOutput)
+    print(f"{colors.OKGREEN}[SUCCESS]{colors.ENDC} Write lines to file {kwargs.get('exitFile')} successful")
 
 
-if __name__ == "__main__":
-    main(sys.argv[1:])
+if __name__ == '__main__':
+    check_condition(len(sys.argv) > 6, expect=False, msg="MAX OF 6 ARGUMENTS IS TO BE PROVIDED")
+    main(
+        file=sys.argv[1] if len(sys.argv) >= 2 else None, 
+        operator=sys.argv[2] if len(sys.argv) >= 3 else None, 
+        inputFile=sys.argv[3] if len(sys.argv) >= 4 else None, 
+        exitOperator=sys.argv[4] if len(sys.argv) >= 5 else None, 
+        exitFile=sys.argv[5] if len(sys.argv) == 6 else None,
+    )
