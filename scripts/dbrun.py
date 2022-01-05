@@ -8,36 +8,56 @@
 # input file is required for an ouput file
 #
 
+from typing import List, Optional
+from subprocess import Popen, PIPE
 import sys
 import os
-
-from subprocess import Popen, PIPE
-
-
-class _os():
-    class colors:
-        OKGREEN = '\033[92m'
-        WARNINGRED = '\033[91m'
-        WARNINGYELLOW = '\033[93m'
-        ENDC = '\033[0m'
-
-    class errors:
-        EXPECTEDARGUMENTS = "[EXPECTED ONE ARGUMENTS]"
-        INVALIDOPPERATOR = "[INVALID OPPERATOR FOUND]"
-        NOFILE = "[EXPECTED FILE FOUND NONE]"
-        FILENOTFOUND = "[NO FILE IN DIR NAMED]"
-
-    def checkAssert(CONDITION, EXPECTED, COLOR, ERROR, EXIT):
-        try:
-            assert(CONDITION == EXPECTED)
-        except AssertionError:
-            print(f"{COLOR}{ERROR}{_os.colors.ENDC}")
-            exit() if EXIT else print(f"{_os.colors.WARNINGYELLOW}[WORKING]{_os.colors.ENDC}") 
+import logging
 
 
-def runningMsg(file, inputFile, exitFile):
+class colors:
+    OKGREEN = '\033[92m'
+    WARNINGRED = '\033[91m'
+    WARNINGYELLOW = '\033[93m'
+    ENDC = '\033[0m'
+
+
+class errors:
+    EXPECTED_ARGUMENTS = "[EXPECTED ONE ARGUMENTS]"
+    INVALID_OPPERATOR = "[INVALID OPPERATOR FOUND]"
+    NO_FILE = "[EXPECTED FILE FOUND NONE]"
+    LEN_MISSMATCH = "[LINE LENGTH MISSMATCH]"
+    NO_TARGET_LINE = f"[COULD NOT FIND TARGET LINE]{colors.ENDC} -> None"
+
+    @staticmethod
+    def file_not_found(*args) -> exit:
+        for arg in args:
+            logging.error(f"{colors.WARNINGRED}[FILE NOT FOUND]{colors.ENDC} NO FILE IN DIR NAMED -> {arg}")
+        exit()
+
+    @staticmethod
+    def gpp_file_not_found(file: str) -> exit:
+        logging.error(f"g++:{colors.WARNINGRED} error: {colors.ENDC}{file}: No such file found")
+        exit()
+
+
+def check_condition(
+    condition: bool = False, 
+    expect: bool = True, 
+    color: str = colors.WARNINGRED, 
+    msg: str = None, 
+    leave: bool = True,
+) -> Optional[exit]:
+    """Template for basic console logging"""
+    try:
+        assert(condition is expect)
+    except AssertionError:
+        logging.error(f"{color}{msg}{colors.ENDC}")
+        exit() if leave else print(f"{colors.WARNINGYELLOW}[WORKING]{colors.ENDC}")
+
+
+def running_msg(file: str, inputFile: str = None, exitFile: str = None) -> None:
     print(f"[DEBUG MODE] Compiling {file} with C++17")
-    
     if inputFile is not None:
         print(f"[INPUT FILE] Selected Input File is {inputFile}")
 
@@ -47,77 +67,66 @@ def runningMsg(file, inputFile, exitFile):
     print("--------------------")
 
 
-def getLines(inputFile):
+def get_file_lines(fname: str) -> List[str]:
     try:
-        with open(inputFile, 'r') as f:
-            lines = f.readlines()
-
-        return lines
-    
+        with open(fname, 'r') as file:
+            return file.readlines()
     except OSError:
-        print(f"{_os.colors.WARNINGRED}{_os.errors.FILENOTFOUND} -> {inputFile}{_os.colors.ENDC}")
-        exit()
+        errors.file_not_found(fname)
 
-def writeLines(exitFile, newLines):
+
+def write_file_lines(fname: str, lines: List[str]) -> None:
     try:
-        with open(exitFile, 'w') as f:
-            f.writelines(newLines)
-    
+        with open(fname, 'w') as file:
+            file.writelines(lines)
     except OSError:
-        print(f"{_os.colors.WARNINGRED}{_os.errors.FILENOTFOUND} -> {exitFile}{_os.colors.ENDC}")
-        exit()
+        errors.file_not_found(fname)
 
 
-def findTargetLine(file, target):
-    # No need for try + except because findFileForGpp has already been called
-    with open(file, 'r') as f:
-        lines = f.readlines()
-
-        for i, line in enumerate(lines):
-            if line == target:
-                return i
-
+def locate_target_line(fname: str, target: str) -> int:
+    try:
+        with open(fname, 'r') as file:
+            lines = file.readlines()
+            for i, line in enumerate(lines):
+                if line == target: 
+                    return i
+    except OSError:
+        errors.file_not_found(fname)
     return None
 
-def enterDbgMode(file, targetLine):
+
+def replace_line(fname: str, targetLine: int, replacementLine: str) -> None:
     if targetLine is None:
+        check_condition(color=colors.WARNINGYELLOW, msg=errors.NO_TARGET_LINE, leave=False)
         return
 
-    with open(file, 'r+') as f:
-        lines = f.readlines()
-        lines[targetLine] = "#define DBG_MODE\n"
-        f.truncate(0)
-        f.seek(0)
-        f.writelines(lines)
+    def _clear_file() -> None:
+        file.truncate(0)
+        file.seek(0)
 
-def exitDbgMode(file, targetLine):
-    if targetLine is None:
-        return
-
-    with open(file, 'r+') as f:
-        lines = f.readlines()
-        lines[targetLine] = "//dbg\n"
-        f.truncate(0)
-        f.seek(0)
-        f.writelines(lines)
+    try:
+        with open(fname, 'r+') as file:
+            lines = file.readlines()
+            lines[targetLine] = replacementLine
+            _clear_file()
+            file.writelines(lines)
+    except OSError:
+        errors.file_not_found(fname)
 
 
-def inputLines(programInput):
-    p = Popen([os.getcwd() + '/a.out'], stdout=PIPE, stdin=PIPE)
+def gpp_assert_file_in_dir(fname: str) -> None:
+    try:
+        assert(fname in os.listdir())
+    except AssertionError:
+        errors.gpp_file_not_found(fname)
 
-    for line in programInput:
+
+def cpp_program_interact(lines: List[str]) -> List[str]:
+    p = Popen([f"{os.getcwd()}/a.out"], stdout=PIPE, stdin=PIPE)
+    for line in lines:
         p.stdin.write(line.encode('utf-8'))
-
     p.stdin.flush()
     return [line.decode() for line in p.stdout.readlines()]
-
-
-def findFileForGpp(file):
-    try:
-        assert(file in os.listdir())
-    except AssertionError:
-        print(f"g++:{_os.colors.WARNINGRED} error: {_os.colors.ENDC}{file}: No such file found")
-        exit()
 
 
 def wholeInputCheck(inputOperator, inputFile, exitOperator, exitFile):
