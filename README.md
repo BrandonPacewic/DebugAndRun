@@ -29,7 +29,7 @@ dbrun <fname>.cc / <sample input file>.txt / <sample output file>.txt
 [INPUT FILE] Selected Input File is <sample input file>.txt
 [OUTPUT FILE] Selected Output File is <sample output file>.txt
 --------------------
-[SUCCESS] Write lines to file C_output.txt successful
+[SUCCESS] Write lines to file <sample output file>.txt successful
 ```
 
 A output file is not always required as the script will print the program output if no 
