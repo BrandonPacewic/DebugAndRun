@@ -1,14 +1,15 @@
 #! /usr/bin/python3
 
-# Usage dbrun <filename>  
-# Can also be used with an input file and an ouput flie
-# Ex: dbrun <filename> / <inputfile> / <outputfile>
-#
-# Both an input file and an output file is not required but an 
-# input file is required for an ouput file
-#
+"""
+Usage dbrun <filename>  
+Can also be used with an input file and an ouput flie
+Ex: dbrun <filename> / <inputfile> / <outputfile>
 
-from typing import List, Optional
+Both an input file and an output file is not required but an 
+input file is required for an ouput file
+"""
+
+from typing import List, Optional, Any
 from subprocess import Popen, PIPE
 import sys
 import os
@@ -30,13 +31,13 @@ class errors:
     NO_TARGET_LINE = f"[COULD NOT FIND TARGET LINE]{colors.ENDC} -> None"
 
     @staticmethod
-    def file_not_found(*args) -> exit:
+    def file_not_found(*args) -> None:
         for arg in args:
             logging.error(f"{colors.WARNINGRED}[FILE NOT FOUND]{colors.ENDC} NO FILE IN DIR NAMED -> {arg}")
         exit()
 
     @staticmethod
-    def gpp_file_not_found(file: str) -> exit:
+    def gpp_file_not_found(file: str) -> None:
         logging.error(f"g++:{colors.WARNINGRED} error: {colors.ENDC}{file}: No such file found")
         exit()
 
@@ -47,7 +48,7 @@ def check_condition(
     color: str = colors.WARNINGRED, 
     msg: str = None, 
     leave: bool = True,
-) -> Optional[exit]:
+) -> None:
     """Template for basic console logging"""
     try:
         assert(condition is expect)
@@ -70,9 +71,11 @@ def running_msg(file: str, inputFile: str = None, exitFile: str = None) -> None:
 def get_file_lines(fname: str) -> List[str]:
     try:
         with open(fname, 'r') as file:
-            return file.readlines()
+            lines = file.readlines()
     except OSError:
         errors.file_not_found(fname)
+
+    return lines
 
 
 def create_file_if_needed(fname: str) -> None:
@@ -88,7 +91,7 @@ def write_file_lines(fname: str, lines: List[str]) -> None:
         errors.file_not_found(fname)
 
 
-def locate_target_line(fname: str, target: str) -> int:
+def locate_target_line(fname: str, target: str) -> Any:
     try:
         with open(fname, 'r') as file:
             lines = file.readlines()
@@ -97,6 +100,7 @@ def locate_target_line(fname: str, target: str) -> int:
                     return i
     except OSError:
         errors.file_not_found(fname)
+
     return None
 
 
@@ -127,11 +131,11 @@ def gpp_assert_file_in_dir(fname: str) -> None:
 
 
 def cpp_program_interact(lines: List[str]) -> List[str]:
-    p = Popen([f"{os.getcwd()}/a.out"], stdout=PIPE, stdin=PIPE)
+    program = Popen([f"{os.getcwd()}/a.out"], stdout=PIPE, stdin=PIPE)
     for line in lines:
-        p.stdin.write(line.encode('utf-8'))
-    p.stdin.flush()
-    return [line.decode() for line in p.stdout.readlines()]
+        program.stdin.write(line.encode('utf-8'))
+    program.stdin.flush()
+    return [line.decode() for line in program.stdout.readlines()]
 
 
 def whole_input_check(
@@ -140,7 +144,7 @@ def whole_input_check(
     inputFile: str, 
     exitOperator: str, 
     exitFile: str
-) -> Optional[exit]:
+) -> None:
     check_condition(file is not None, msg=errors.NO_FILE)
 
     if inputOperator is None:
