@@ -91,7 +91,7 @@ def write_file_lines(fname: str, lines: List[str]) -> None:
         errors.file_not_found(fname)
 
 
-def locate_target_line(fname: str, target: str) -> Any:
+def locate_target_line(fname: str, target: str) -> Optional[int]:
     try:
         with open(fname, 'r') as file:
             lines = file.readlines()
@@ -102,7 +102,6 @@ def locate_target_line(fname: str, target: str) -> Any:
         errors.file_not_found(fname)
 
     return None
-
 
 def replace_line(fname: str, targetLine: int, replacementLine: str) -> None:
     if targetLine is None:
