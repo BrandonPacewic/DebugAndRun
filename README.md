@@ -107,3 +107,14 @@ With defining DBG_MODE
 If you want to look more at my debug template for competitive programming that can be found [Here](https://github.com/BrandonPacewic/CompetitiveProgramming/blob/master/tools/dbg.hpp)
 
 At the moment this does mean that the script checks every line to see if it needs to define the dbg macro but a feature to disable this with sys.args is to be added in newer versions
+
+### Install
+
+For your convinence there is a install script that will make the global command for you
+
+```shell
+chmod +x INSTALL.sh
+sudo ./INSTALL.sh
+```
+
+Enjoy :)
