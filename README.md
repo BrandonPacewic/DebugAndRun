@@ -1,5 +1,8 @@
 # Debug And Run
-A python script for compiling and executing .cc files 
+
+----
+
+A linux python script for compiling and executing .cc files 
 
 ##### Example
 
@@ -38,6 +41,8 @@ output file is provided
 For this version a input file is needed to make an output file
 
 ### Define DBG_MODE
+
+----
 
 This script will also open the .cc file that you intend to run and will replace
 
@@ -109,6 +114,8 @@ If you want to look more at my debug template for competitive programming that c
 At the moment this does mean that the script checks every line to see if it needs to define the dbg macro but a feature to disable this with sys.args is to be added in newer versions
 
 ### Install
+
+----
 
 For your convinence there is a install script that will make the global command for you
 
