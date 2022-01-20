@@ -9,12 +9,13 @@ Both an input file and an output file is not required but an
 input file is required for an ouput file
 """
 
-from typing import List, Optional, Any
+from typing import List, Optional
 from subprocess import Popen, PIPE
 import sys
 import os
 import logging
 
+DBG_DEF = "DBG_MODE"
 
 class colors:
     OKGREEN = '\033[92m'
@@ -103,24 +104,6 @@ def locate_target_line(fname: str, target: str) -> Optional[int]:
 
     return None
 
-def replace_line(fname: str, targetLine: int, replacementLine: str) -> None:
-    if targetLine is None:
-        check_condition(color=colors.WARNINGYELLOW, msg=errors.NO_TARGET_LINE, leave=False)
-        return
-
-    def _clear_file() -> None:
-        file.truncate(0)
-        file.seek(0)
-
-    try:
-        with open(fname, 'r+') as file:
-            lines = file.readlines()
-            lines[targetLine] = replacementLine
-            _clear_file()
-            file.writelines(lines)
-    except OSError:
-        errors.file_not_found(fname)
-
 
 def gpp_assert_file_in_dir(fname: str) -> None:
     try:
@@ -187,10 +170,12 @@ def main(**kwargs):
     file = does_need_suffix(kwargs.get("file"))
 
     gpp_assert_file_in_dir(file)
+
     targetLine = locate_target_line(file, target="//dbg\n")
-    replace_line(file, targetLine, replacementLine="#define DBG_MODE\n")
-    os.system(f"g++ {file}")
-    replace_line(file, targetLine, replacementLine="//dbg\n")
+    check_condition(targetLine is not None, color=colors.WARNINGYELLOW, msg=errors.NO_TARGET_LINE, leave=False)
+    del targetLine
+
+    os.system(f"g++ -g -std=c++17 -Wall -D{DBG_DEF} {file}")
 
     running_msg(file, kwargs.get("inputFile"), kwargs.get("exitFile"))
 
