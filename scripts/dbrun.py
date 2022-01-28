@@ -1,14 +1,5 @@
 #! /usr/bin/python3
 
-"""
-Usage dbrun <filename>  
-Can also be used with an input file and an ouput flie
-Ex: dbrun <filename> / <inputfile> / <outputfile>
-
-Both an input file and an output file is not required but an 
-input file is required for an ouput file
-"""
-
 from typing import List, Optional
 from subprocess import Popen, PIPE
 
