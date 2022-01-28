@@ -11,11 +11,13 @@ input file is required for an ouput file
 
 from typing import List, Optional
 from subprocess import Popen, PIPE
+
+import argparse
 import sys
 import os
 import logging
 
-DBG_DEF = "DBG_MODE"
+DBG_DEF = 'DBG_MODE'
 
 class colors:
     OKGREEN = '\033[92m'
@@ -25,21 +27,21 @@ class colors:
 
 
 class errors:
-    EXPECTED_ARGUMENTS = "[EXPECTED ONE ARGUMENTS]"
-    INVALID_OPPERATOR = "[INVALID OPPERATOR FOUND]"
-    NO_FILE = "[EXPECTED FILE FOUND NONE]"
-    LEN_MISSMATCH = "[LINE LENGTH MISSMATCH]"
-    NO_TARGET_LINE = f"[COULD NOT FIND TARGET LINE]{colors.ENDC} -> None"
+    EXPECTED_ARGUMENTS = '[EXPECTED ONE ARGUMENTS]'
+    INVALID_OPPERATOR = '[INVALID OPPERATOR FOUND]'
+    NO_FILE = '[EXPECTED FILE FOUND NONE]'
+    LEN_MISSMATCH = '[LINE LENGTH MISSMATCH]'
+    NO_TARGET_LINE = f'[COULD NOT FIND TARGET LINE]{colors.ENDC} -> None'
 
     @staticmethod
     def file_not_found(*args) -> None:
         for arg in args:
-            logging.error(f"{colors.WARNINGRED}[FILE NOT FOUND]{colors.ENDC} NO FILE IN DIR NAMED -> {arg}")
+            logging.error(f'{colors.WARNINGRED}[FILE NOT FOUND]{colors.ENDC} NO FILE IN DIR NAMED -> {arg}')
         exit()
 
     @staticmethod
     def gpp_file_not_found(file: str) -> None:
-        logging.error(f"g++:{colors.WARNINGRED} error: {colors.ENDC}{file}: No such file found")
+        logging.error(f'g++:{colors.WARNINGRED} error: {colors.ENDC}{file}: No such file found')
         exit()
 
 
@@ -54,19 +56,19 @@ def check_condition(
     try:
         assert(condition is expect)
     except AssertionError:
-        logging.error(f"{color}{msg}{colors.ENDC}")
-        exit() if leave else print(f"{colors.WARNINGYELLOW}[WORKING]{colors.ENDC}")
+        logging.error(f'{color}{msg}{colors.ENDC}')
+        exit() if leave else print(f'{colors.WARNINGYELLOW}[WORKING]{colors.ENDC}')
 
 
 def running_msg(file: str, inputFile: str = None, exitFile: str = None) -> None:
-    print(f"[DEBUG MODE] Compiling {file} with C++17")
+    print(f'[DEBUG MODE] Compiling {file} with C++17')
     if inputFile is not None:
-        print(f"[INPUT FILE] Selected Input File is {inputFile}")
+        print(f'[INPUT FILE] Selected Input File is {inputFile}')
 
     if exitFile is not None:
-        print(f"[OUTPUT FILE] Selected Output File is {exitFile}")
+        print(f'[OUTPUT FILE] Selected Output File is {exitFile}')
 
-    print("--------------------")
+    print('--------------------')
 
 
 def get_file_lines(fname: str) -> List[str]:
@@ -81,7 +83,7 @@ def get_file_lines(fname: str) -> List[str]:
 
 def create_file_if_needed(fname: str) -> None:
     if not fname in os.listdir():
-        os.system(f"touch {fname}") 
+        os.system(f'touch {fname}') 
 
 
 def write_file_lines(fname: str, lines: List[str]) -> None:
@@ -113,7 +115,7 @@ def gpp_assert_file_in_dir(fname: str) -> None:
 
 
 def cpp_program_interact(lines: List[str]) -> List[str]:
-    program = Popen([f"{os.getcwd()}/a.out"], stdout=PIPE, stdin=PIPE)
+    program = Popen([f'{os.getcwd()}/a.out'], stdout=PIPE, stdin=PIPE)
     for line in lines:
         program.stdin.write(line.encode('utf-8'))
     program.stdin.flush()
@@ -152,40 +154,51 @@ def whole_input_check(
     check_condition(exitFile is not None, msg=errors.NO_FILE)
 
 
-def main(**kwargs):
+def main():
     logging.basicConfig(
         level=logging.DEBUG, 
-        format=f"{colors.WARNINGRED}[ERROR - %(asctime)s]{colors.ENDC} - %(message)s",
+        format=f'{colors.WARNINGRED}[ERROR - %(asctime)s]{colors.ENDC} - %(message)s',
     )
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('input', type=str, metavar='N', nargs='+')
+    args = parser.parse_args()
+
+    file = args.input[0]
+    inputOperator = args.input[1] if len(args.input) > 1 else None
+    inputFile = args.input[2] if len(args.input) > 2 else None
+    exitOperator = args.input[3] if len(args.input) > 3 else None
+    exitFile = args.input[4] if len(args.input) > 4 else None
 
     whole_input_check(
-        kwargs.get("file"),
-        kwargs.get("operator"),    
-        kwargs.get("inputFile"),
-        kwargs.get("exitOperator"),    
-        kwargs.get("exitFile"),
+        file,
+        inputOperator,
+        inputFile,
+        exitOperator,
+        exitFile,
     )
 
-    does_need_suffix = lambda file: file if file[-3:] == ".cc" else f"{file}.cc"
-    file = does_need_suffix(kwargs.get("file"))
+    """Adds suffix"""
+    if file[-3:] != '.cc':
+        file += '.cc'
 
     gpp_assert_file_in_dir(file)
 
-    targetLine = locate_target_line(file, target="//dbg\n")
+    targetLine = locate_target_line(file, target='//dbg\n')
     check_condition(targetLine is not None, color=colors.WARNINGYELLOW, msg=errors.NO_TARGET_LINE, leave=False)
     del targetLine
 
-    os.system(f"g++ -g -std=c++17 -Wall -D{DBG_DEF} {file}")
+    os.system(f'g++ -g -std=c++17 -Wall -D{DBG_DEF} {file}')
 
-    running_msg(file, kwargs.get("inputFile"), kwargs.get("exitFile"))
+    running_msg(file, inputFile, exitFile)
 
-    if kwargs.get("operator") is None:
-        os.system("./a.out")
+    if inputOperator is None:
+        os.system('./a.out')
         exit()
 
-    programOutput = cpp_program_interact(get_file_lines(kwargs.get("inputFile")))
+    programOutput = cpp_program_interact(get_file_lines(inputFile))
 
-    if kwargs.get("exitFile") is None:
+    if exitFile is None:
         def _print_file_lines(lines: List[str], pend='') -> None:
             for line in lines:
                 print(line, end=pend)
@@ -193,17 +206,10 @@ def main(**kwargs):
         _print_file_lines(programOutput)
         exit()
 
-    create_file_if_needed(kwargs.get("exitFile"))
-    write_file_lines(kwargs.get("exitFile"), programOutput)
-    print(f"{colors.OKGREEN}[SUCCESS]{colors.ENDC} Write lines to file {kwargs.get('exitFile')} successful")
+    create_file_if_needed(exitFile)
+    write_file_lines(kwargs.get('exitFile'), programOutput)
+    print(f'{colors.OKGREEN}[SUCCESS]{colors.ENDC} Write lines to file {exitFile} successful')
 
 
 if __name__ == '__main__':
-    check_condition(len(sys.argv) > 6, expect=False, msg="MAX OF 6 ARGUMENTS IS TO BE PROVIDED")
-    main(
-        file=sys.argv[1] if len(sys.argv) >= 2 else None, 
-        operator=sys.argv[2] if len(sys.argv) >= 3 else None, 
-        inputFile=sys.argv[3] if len(sys.argv) >= 4 else None, 
-        exitOperator=sys.argv[4] if len(sys.argv) >= 5 else None, 
-        exitFile=sys.argv[5] if len(sys.argv) == 6 else None,
-    )
+    main()
