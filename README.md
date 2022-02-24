@@ -60,9 +60,9 @@ using namespace std;
 void DBG_OUT() { cerr << endl; }
 template<typename Front, typename... Back> void DBG_OUT(Front K, Back... T) { cerr << ' ' << K; DBG_OUT(T...); }
 #ifdef DBG_MODE
-#define testArgs(...) cerr << '(' << #__VA_ARGS__ << "):", DBG_OUT(__VA_ARGS__)
+#define test(...) cerr << '(' << #__VA_ARGS__ << "):", DBG_OUT(__VA_ARGS__)
 #else
-#define testArgs(...)
+#define test(...)
 #endif
 
 
@@ -70,7 +70,7 @@ int main() {
     int A, B;
     cin >> A >> B;
 
-    testArgs(A - B, A * B);
+    test(A - B, A * B);
 
     cout << A + B << '\n';
     cout << flush;
