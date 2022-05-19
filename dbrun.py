@@ -4,7 +4,6 @@ from typing import List, Optional
 from subprocess import Popen, PIPE
 
 import argparse
-import sys
 import os
 import logging
 
@@ -36,13 +35,9 @@ class errors:
         exit()
 
 
-def check_condition(
-    condition: bool = False, 
-    expect: bool = True, 
-    color: str = colors.WARNINGRED, 
-    msg: str = None, 
-    leave: bool = True,
-) -> None:
+def check_condition(condition: bool = False, expect: bool = True, 
+                    color: str = colors.WARNINGRED, msg: str = None, 
+                    leave: bool = True) -> None:
     """Template for basic console logging"""
     try:
         assert(condition is expect)
@@ -55,10 +50,8 @@ def running_msg(file: str, inputFile: str = None, exitFile: str = None) -> None:
     print(f'[DEBUG MODE] Compiling {file} with C++17')
     if inputFile is not None:
         print(f'[INPUT FILE] Selected Input File is {inputFile}')
-
     if exitFile is not None:
         print(f'[OUTPUT FILE] Selected Output File is {exitFile}')
-
     print('--------------------')
 
 
@@ -68,7 +61,6 @@ def get_file_lines(fname: str) -> List[str]:
             lines = file.readlines()
     except OSError:
         errors.file_not_found(fname)
-
     return lines
 
 
@@ -113,13 +105,8 @@ def cpp_program_interact(lines: List[str]) -> List[str]:
     return [line.decode() for line in program.stdout.readlines()]
 
 
-def whole_input_check(
-    file: str,
-    inputOperator: str, 
-    inputFile: str, 
-    exitOperator: str, 
-    exitFile: str
-) -> None:
+def whole_input_check(file: str, inputOperator: str, inputFile: str, 
+                      exitOperator: str, exitFile: str) -> None:
     check_condition(file is not None, msg=errors.NO_FILE)
 
     if inputOperator is None:
@@ -161,25 +148,17 @@ def main():
     exitOperator = args.input[3] if len(args.input) > 3 else None
     exitFile = args.input[4] if len(args.input) > 4 else None
 
-    whole_input_check(
-        file,
-        inputOperator,
-        inputFile,
-        exitOperator,
-        exitFile,
-    )
+    whole_input_check(file, inputOperator, inputFile, exitOperator, exitFile)
 
-    """Adds suffix"""
-    if file[-3:] != '.cc':
-        file += '.cc'
+    if not '.' in file:
+        file += '.cpp'
 
     gpp_assert_file_in_dir(file)
 
     targetLine = locate_target_line(file, target='//dbg\n')
     check_condition(targetLine is not None, color=colors.WARNINGYELLOW, msg=errors.NO_TARGET_LINE, leave=False)
-    del targetLine
 
-    os.system(f'g++ -g -std=c++17 -Wall -D{DBG_DEF} {file}')
+    os.system(f'gcc -g -std=c++17 -Wall -D{DBG_DEF} {file}')
 
     running_msg(file, inputFile, exitFile)
 
@@ -198,7 +177,7 @@ def main():
         exit()
 
     create_file_if_needed(exitFile)
-    write_file_lines(kwargs.get('exitFile'), programOutput)
+    write_file_lines(exitFile, programOutput)
     print(f'{colors.OKGREEN}[SUCCESS]{colors.ENDC} Write lines to file {exitFile} successful')
 
 
