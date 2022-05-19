@@ -10,9 +10,9 @@ then
 fi
 
 echo "Updating script permissions."
-chmod u+x scripts/dbrun.py
+chmod u+x src/dbrun.py
 
 echo "Linking to bin."
-sudo ln scripts/dbrun.py /usr/local/bin/dbrun
+sudo ln src/dbrun.py /usr/local/bin/dbrun
 
 echo "Done, Enjoy :)"
