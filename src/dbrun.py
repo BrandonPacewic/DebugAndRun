@@ -179,7 +179,7 @@ def main():
     os.system(f'gcc -g -std=c++17 -Wall -D{DBG_DEF} {file}')
     compileTime.add_tic()
 
-    running_msg(file, inputFile, exitFile)
+    running_msg(file, compileTime, inputFile, exitFile)
 
     if inputOperator is None:
         os.system('./a.out')
