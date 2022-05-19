@@ -172,11 +172,11 @@ def main():
 
     gpp_assert_file_in_dir(file)
 
-    targetLine = locate_target_line(file, target='//dbg\n')
+    targetLine = locate_target_line(file, target=f'#ifdef {DBG_DEF}\n')
     check_condition(targetLine is not None, color=colors.WARNINGYELLOW, msg=errors.NO_TARGET_LINE, leave=False)
 
     compileTime = timer()
-    os.system(f'gcc -g -std=c++17 -Wall -D{DBG_DEF} {file}')
+    os.system(f'g++ -g -std=c++17 -Wall -D{DBG_DEF} {file}')
     compileTime.add_tic()
 
     running_msg(file, compileTime, inputFile, exitFile)
