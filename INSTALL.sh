@@ -2,7 +2,7 @@
 
 set -e
 
-read -r -p "This script requires root permissions, please acknowledge that it is being run as root. [y|N]: "
+read -r -p "This script requires root permissions, please acknowledge that it is being run as root. [y|n]: "
 if ! [[ $REPLY =~ ^[Yy]$ ]]
 then
     echo "Aborting"
