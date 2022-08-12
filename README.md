@@ -1,17 +1,15 @@
 # Debug And Run
 
-----
-
-A linux python script for compiling and executing .cc files 
+A linux python script for compiling and executing standalone .cpp files 
 
 ##### Example
 
-```shell
-dbrun <fname>.cc
+```Output
+dbrun <fname>.cpp
 ```
 
-```shell 
-[DEBUG MODE] Compiling <fname>.cc with C++17
+```Output
+[DEBUG MODE] Compiling <fname>.cpp with C++17
 --------------------
 
 <sample program output>
@@ -23,12 +21,12 @@ The script can also be used by providing an input and output file for the progra
 
 ##### Example
 
-```shell
-dbrun <fname>.cc / <sample input file>.txt / <sample output file>.txt
+```Output
+dbrun <fname>.cpp / <sample input file>.txt / <sample output file>.txt
 ```
 
 ```shell
-[DEBUG MODE] Compiling <fname>.cc with C++17
+[DEBUG MODE] Compiling <fname>.cpp with C++17
 [INPUT FILE] Selected Input File is <sample input file>.txt
 [OUTPUT FILE] Selected Output File is <sample output file>.txt
 --------------------
@@ -41,8 +39,6 @@ output file is provided
 For this version a input file is needed to make an output file
 
 ### Define DBG_MODE
-
-----
 
 This script will also define the macro 'DBG_MODE'
 
@@ -104,8 +100,6 @@ At the moment this does mean that there is no way to turn this off however an op
 
 ### Install
 
-----
-
 For your convinence there is a install script that will make the global command for you
 
 ```shell
@@ -113,3 +107,9 @@ sudo ./INSTALL.sh
 ```
 
 Enjoy :)
+
+## License
+
+Copyright (c) Brandon Pacewic
+
+SPDX-License-Identifier: MIT
