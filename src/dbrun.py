@@ -1,5 +1,8 @@
 #! /usr/bin/python3
 
+# Copyright (c) Brandon Pacewic
+# SPDX-License-Identifier: MIT
+
 from typing import List, Optional
 from subprocess import Popen, PIPE
 
