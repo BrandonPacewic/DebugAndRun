@@ -7,13 +7,6 @@ import time
 
 DEBUG_DEFINITION = 'DBG_MODE'
 
-class Colors:
-    OK_GREEN = '\033[92m'
-    WARNING_RED = '\033[91m'
-    WARNING_YELLOW = '\033[93m'
-    ENDC = '\033[0m'
-
-
 class Timer:
     def __init__(self):
         self.tics = [time.perf_counter()]
