@@ -22,12 +22,6 @@ class Timer:
             exit()
 
 
-def running_message(file, compileTime):
-    print(f'[DEBUG MODE] Compiling {file} with c++17')
-    print(f'Successfully compiled in {compileTime.get_elapsed()}s')
-    print('--------------------')
-
-
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('file', type=str, help='File to run')
@@ -43,11 +37,14 @@ def main():
 
     assert(file in os.listdir())
 
+    print(f'[DEBUG MODE] Compiling {file} with c++17...')
+
     compileTime = Timer()
     os.system(f'g++ -g -std=c++17 -Wall -D{DEBUG_DEFINITION} {file}')
     compileTime.add_tic()
 
-    running_message(file, compileTime)
+    print(f'Successfully compiled in {compileTime.get_elapsed()}s')
+    print('--------------------')
     os.system('a.exe')
 
 
