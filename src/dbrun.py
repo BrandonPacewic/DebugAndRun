@@ -1,8 +1,11 @@
+#! /usr/bin/python3
+
 # Copyright (c) Brandon Pacewic
 # SPDX-License-Identifier: MIT
 
 import argparse
 import os
+import sys
 import time
 
 DEBUG_DEFINITION = 'DBG_MODE'
@@ -45,7 +48,11 @@ def main():
 
     print(f'Successfully compiled in {compileTime.get_elapsed()}s')
     print('--------------------')
-    os.system('a.exe')
+
+    if sys.platform == 'win32':
+        os.system('a.exe')
+    else:
+        os.system('./a.out')
 
 
 if __name__ == '__main__':
